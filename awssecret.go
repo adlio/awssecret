@@ -18,6 +18,7 @@ type dsn struct {
 	Username             string `json:"username"`
 	Password             string `json:"password"`
 	Port                 int    `json:"port"`
+	SearchPath           string `json:"search_path"`
 	DBInstanceIdentifier string `json:"dbInstanceIdentifier"`
 }
 
@@ -64,6 +65,12 @@ func GetPostgresDSNSecret(sess *session.Session, secretName string) (dsnStr stri
 	if d.Password != "" {
 		s.WriteString("password=")
 		s.WriteString(d.Password)
+		s.WriteString(" ")
+	}
+
+	if d.SearchPath != "" {
+		s.WriteString("search_path=")
+		s.WriteString(d.SearchPath)
 		s.WriteString(" ")
 	}
 
