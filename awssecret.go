@@ -11,6 +11,37 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Credential represents a generic kind of credential stored in AWS
+// Secrets Manager
+//
+type Credential struct {
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	Key      string `json:"key"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+	DBName   string `json:"dbname"`
+}
+
+// GetCredentialSecret retrieves and JSON-decodes secrets stored in AWS Secrets Manager
+// in a JSON format.
+//
+func GetCredentialSecret(sess *session.Session, secretName string) (cred *Credential, err error) {
+	var secret string
+	cred = &Credential{}
+	secret, err = GetStringSecret(sess, secretName)
+	if err != nil {
+		return cred, errors.Wrapf(err, "Couldn't build credential. Failed to retrieve secret.")
+	}
+
+	err = json.Unmarshal([]byte(secret), cred)
+	if err != nil {
+		return cred, errors.Wrapf(err, "Couldn't build credential. Failed to decode JSON.")
+	}
+
+	return cred, nil
+}
+
 type dsn struct {
 	Engine               string `json:"engine"`
 	Host                 string `json:"host"`
