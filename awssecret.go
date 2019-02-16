@@ -11,6 +11,34 @@ import (
 	"github.com/pkg/errors"
 )
 
+// APICredential represents a generic kind of credential for an
+// API base URL, key and secret.
+//
+type APICredential struct {
+	BaseURL   string `json:"baseURL"`
+	APIKey    string `json:"key"`
+	APISecret string `json:"secret"`
+}
+
+// GetAPICredentialSecret retrieves and JSON-decodes secrets stored in AWS Secrets Manager
+// in a JSON format.
+//
+func GetAPICredentialSecret(sess *session.Session, secretName string) (cred *APICredential, err error) {
+	var secret string
+	cred = &APICredential{}
+	secret, err = GetStringSecret(sess, secretName)
+	if err != nil {
+		return cred, errors.Wrapf(err, "Couldn't build credential. Failed to retrieve secret.")
+	}
+
+	err = json.Unmarshal([]byte(secret), cred)
+	if err != nil {
+		return cred, errors.Wrapf(err, "Couldn't build credential. Failed to decode JSON.")
+	}
+
+	return cred, nil
+}
+
 // Credential represents a generic kind of credential stored in AWS
 // Secrets Manager
 //
