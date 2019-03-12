@@ -143,7 +143,14 @@ func GetStringSecret(sess *session.Session, secretName string) (secret string, e
 
 	//Create a Secrets Manager client if one wasn't passed in
 	if sess == nil {
-		sess = session.New()
+		sess, err = session.NewSessionWithOptions(
+			session.Options{
+				SharedConfigState: session.SharedConfigEnable,
+			},
+		)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	svc := secretsmanager.New(sess)
